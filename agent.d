@@ -4,7 +4,7 @@ module Agent;
 // and intelligence. And a level of interest in talking about stuff. And stuff.
 // Hmm, this is gonna be tricky.
 class Agent
-{
+{ 
     // Charisma is a one-sided buff to trying to convince his partner of a thing
     // where a higher charisma means less talkingPoints are required to push
     // the idea
