@@ -16,12 +16,17 @@ public:
     // This is the basic constructor for an agent, leading to a purely random
     // agent. Use another constructor for deliberately initializing values
     Agent();
+    ~Agent();
     // This is the initializer for a random population. Randomly chooses a
     // charisma and intelligence and maximum talking points value, as well as
     // the talking points recharge factor.
     // Also initializes a random number of ideas to a random value. Use this
     // fucntion for a purely random agent
     void randomizeAgent();
+    // This is the simplest idea exchange algorithm, where the new idea amount
+    // is "1/2 of my new belief is my old belief.  The other half is half of the
+    // average of what other people are telling me."
+    void simplestExchange( Agent other );
     // This is a one sided exchange, where this agent spends points and does
     // checks to influence the agent he is speaking with
     void oneSidedConvo( Agent other );
@@ -34,6 +39,23 @@ public:
     int getColor();
     // Get the string rep
     std::string getRep();
+    // Initialize the idea list
+    void initIdeas( int numIdeas );
+    // These are all the ideas that anyone in the entire world can have. Some
+    // are dichtomous, others are mutually independent. The dichotomous ones
+    // simply mean that For every point stored in one, the opposite idea has
+    // one less point, for a maximum shift of 100 in one idea, -100 in another.
+    // (Democrat vs. Republican)
+    // Furthermore, the mutually exclusive ideas don't seem to have a natural
+    // reason to do anything besides grow until at maximum, so we shall see if
+    // I can't come up with an antagonist to unchecked growth for independent
+    // ideas
+    Idea* ideas;
+    int numIdeas;
+    void setX( int x );
+    void setY( int y );
+    int getX();
+    int getY();
 private:
 	// Agent's name
 	std::string name;
@@ -60,16 +82,6 @@ private:
     // This is the recharge rate of the agent, where 1 means 1 talking point
     // a simulation tick
     int tpRecharge;
-    // These are all the ideas that anyone in the entire world can have. Some
-    // are dichtomous, others are mutually independent. The dichotomous ones
-    // simply mean that For every point stored in one, the opposite idea has
-    // one less point, for a maximum shift of 100 in one idea, -100 in another.
-    // (Democrat vs. Republican)
-    // Furthermore, the mutually exclusive ideas don't seem to have a natural
-    // reason to do anything besides grow until at maximum, so we shall see if
-    // I can't come up with an antagonist to unchecked growth for independent
-    // ideas
-    Idea* ideas;
     // This is the unicode string to represent the agent. Probably a smiley
     std::string rep;
     // This is the color attribute number for the agent

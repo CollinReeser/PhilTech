@@ -6,6 +6,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+static std::string ideaNames[] = 
+{
+	"My risk of catching smallpox" , "Ghosts are real" , "Aliens are out there",
+	"Irregardless is a word" , "Spiders are terrifying" , 
+	"Electric fans are murderous" , 
+};
+
 // This is the basic constructor for an agent, leading to a purely random
 // agent. Use another constructor for deliberately initializing values
 Agent::Agent()
@@ -58,6 +65,8 @@ Agent::Agent()
 	{
 		rep = "\u2639";
 	}
+	xCoord = -1;
+	yCoord = -1;
     randomizeAgent();
 }
 
@@ -94,4 +103,54 @@ int Agent::getColor()
 std::string Agent::getRep()
 {
 	return rep;
+}
+
+void Agent::setX( int x )
+{
+	xCoord = x;
+	return;
+}
+void Agent::setY( int y )
+{
+	yCoord = y;
+}
+int Agent::getX()
+{
+	return xCoord;
+}
+int Agent::getY()
+{
+	return yCoord;
+}
+
+void Agent::initIdeas( int numIdeas )
+{
+	Agent::numIdeas = numIdeas;
+	//srand( time(0) );
+	ideas = new Idea[numIdeas];
+	for ( int i = 0; i < numIdeas; i++ )
+	{
+		ideas[i].setName(ideaNames[i]);
+		ideas[i].setID(i);
+		ideas[i].setBeliefVal( ( rand() % 200 ) - 100);
+	}
+	return;
+}
+
+void Agent::simplestExchange( Agent other )
+{
+	int idea = rand() % numIdeas;
+	Agent::ideas[idea].setBeliefVal( ( Agent::ideas[idea].getBeliefVal() != 0 )
+		? ( ( Agent::ideas[idea].getBeliefVal() / 2 ) + 
+		( other.ideas[idea].getBeliefVal() != 0 ) ? 
+		( other.ideas[idea].getBeliefVal() / 2 ) : 0 ) : 
+		( other.ideas[idea].getBeliefVal() != 0 ) ? 
+		( other.ideas[idea].getBeliefVal() / 2 ) : 0 );
+	return;
+}
+
+Agent::~Agent()
+{
+	delete[] ideas;
+	return;
 }

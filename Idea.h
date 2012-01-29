@@ -10,6 +10,13 @@ class Idea
 public:
 	// Constructor
 	Idea();
+	// Getters setters
+	void setName( std::string name);
+	void setID( int ID );
+	void setBeliefVal( int val );
+	std::string getName();
+	int getID();
+	int getBeliefVal();
 private:
 	// Idea's name
 	std::string name;
