@@ -20,6 +20,7 @@ static void editCell( int y , int x , int newY , int newX );
 static void randomizeStartingPositions( Agent* agents , int length );
 static void moveRandomly( Agent* agents , int length );
 static void initSimpleIdeas( Agent* agents , int length , int numIdeas );
+static void exchangeIdeas( Agent* agents , int length );
 static void tick();
 static void finish(int sig);
 struct cell
@@ -95,7 +96,7 @@ int main(int argc , char** argv)
     {
     	int c;
     	// Get next keystroke
-        if ( ++ticks == 250 )
+        if ( ++ticks == 2000 )
         {
         	c = getch();
         }
@@ -108,6 +109,7 @@ int main(int argc , char** argv)
 		}
 		bufferPrint(agents);
 		moveRandomly( agents , agntSize );
+		exchangeIdeas( agents , agntSize );
 		refresh();
 	}
 	finish(0);
@@ -140,7 +142,7 @@ int main(int argc , char** argv)
 	for ( int i = 0; i < agents[0].numIdeas; i++ )
 	{
 		cout << "Idea ID " << i << ", \"" << agents[0].ideas[i].getName() <<
-			"\", has average belief of: " << ( ideaAverages[i] / agntSize ) <<
+			"\", has an average belief of: " << ( ideaAverages[i] / agntSize ) <<
 			endl;
 	}
 	cout << "\nEND OF SIMULATION\n" << endl;
@@ -259,9 +261,30 @@ static void moveRandomly( Agent* agents, int length )
 
 static void exchangeIdeas( Agent* agents , int length )
 {
-	for ( int i = 0; i < lengthl i++ )
+	for ( int i = 0; i < length; i++ )
 	{
-		
+		for ( int j = -1; j < 2; j++ )
+		{
+			for ( int k = -1; k < 2; k++)
+			{
+				if ( j == 0 && k == 0 )
+				{
+					continue;
+				}
+				if ( agents[i].getY() + j > -1 && agents[i].getY() + j < 25 &&
+					agents[i].getX() + k > -1 && agents[i].getX() + k < 80 && 
+					bufferNew[agents[i].getY() + j][agents[i].getX() + k] != -1)
+				{
+					//cout << "Y: " << agents[i].getY() + j << " ";
+					//cout << "X: " << agents[i].getX() + k << endl;
+					agents[i].simplestExchange( //agents[i] );
+						agents[
+						bufferNew[agents[i].getY() + j][agents[i].getX() + k]
+						] );
+					break;
+				}
+			}
+		}
 	}
 }
 

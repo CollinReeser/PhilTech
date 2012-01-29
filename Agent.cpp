@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <iostream>
 
 static std::string ideaNames[] = 
 {
@@ -132,20 +133,18 @@ void Agent::initIdeas( int numIdeas )
 	{
 		ideas[i].setName(ideaNames[i]);
 		ideas[i].setID(i);
-		ideas[i].setBeliefVal( ( rand() % 200 ) - 100);
+		ideas[i].setBeliefVal( ( rand() % 100 ) );// - 100);
 	}
 	return;
 }
 
-void Agent::simplestExchange( Agent other )
+void Agent::simplestExchange( Agent& other )
 {
 	int idea = rand() % numIdeas;
-	Agent::ideas[idea].setBeliefVal( ( Agent::ideas[idea].getBeliefVal() != 0 )
-		? ( ( Agent::ideas[idea].getBeliefVal() / 2 ) + 
-		( other.ideas[idea].getBeliefVal() != 0 ) ? 
-		( other.ideas[idea].getBeliefVal() / 2 ) : 0 ) : 
-		( other.ideas[idea].getBeliefVal() != 0 ) ? 
-		( other.ideas[idea].getBeliefVal() / 2 ) : 0 );
+	/*Agent::ideas[idea].setBeliefVal( Agent::ideas[idea].getBeliefVal() >> 1 +
+		other.ideas[idea].getBeliefVal() >> 1 );*/
+	Agent::ideas[idea].setBeliefVal( ( Agent::ideas[idea].getBeliefVal() +
+		other.ideas[idea].getBeliefVal() ) >> 1 );
 	return;
 }
 

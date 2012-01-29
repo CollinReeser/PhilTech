@@ -26,7 +26,7 @@ public:
     // This is the simplest idea exchange algorithm, where the new idea amount
     // is "1/2 of my new belief is my old belief.  The other half is half of the
     // average of what other people are telling me."
-    void simplestExchange( Agent other );
+    void simplestExchange( Agent& other );
     // This is a one sided exchange, where this agent spends points and does
     // checks to influence the agent he is speaking with
     void oneSidedConvo( Agent other );
