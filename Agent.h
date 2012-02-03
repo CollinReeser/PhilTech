@@ -41,6 +41,11 @@ public:
     std::string getRep();
     // Initialize the idea list
     void initIdeas( int numIdeas );
+    // Returns true if the agent hasn't talked yet this tick. Used for the
+    // simplestExchange()
+    bool canTalk();
+    // Resets talked bool
+    void resetTalked();
     // These are all the ideas that anyone in the entire world can have. Some
     // are dichtomous, others are mutually independent. The dichotomous ones
     // simply mean that For every point stored in one, the opposite idea has
@@ -88,6 +93,7 @@ private:
     int color;
     int xCoord;
     int yCoord;
+    bool talked;
 };
 
 #endif

@@ -9,9 +9,9 @@
 
 static std::string ideaNames[] = 
 {
-	"My risk of catching smallpox" , "Ghosts are real" , "Aliens are out there",
+	"Tachyons are real" , "Ghosts are real" , "Aliens are out there",
 	"Irregardless is a word" , "Spiders are terrifying" , 
-	"Electric fans are murderous" , 
+	"Electric fans are murderous" 
 };
 
 // This is the basic constructor for an agent, leading to a purely random
@@ -138,13 +138,27 @@ void Agent::initIdeas( int numIdeas )
 	return;
 }
 
+bool Agent::canTalk()
+{
+	return !talked;
+}
+
+void Agent::resetTalked()
+{
+	talked = false;
+}
+
 void Agent::simplestExchange( Agent& other )
 {
 	int idea = rand() % numIdeas;
+	talked = true;
 	/*Agent::ideas[idea].setBeliefVal( Agent::ideas[idea].getBeliefVal() >> 1 +
 		other.ideas[idea].getBeliefVal() >> 1 );*/
-	Agent::ideas[idea].setBeliefVal( ( Agent::ideas[idea].getBeliefVal() +
-		other.ideas[idea].getBeliefVal() ) >> 1 );
+	if ( other.canTalk() )
+	{
+		Agent::ideas[idea].setBeliefVal( ( Agent::ideas[idea].getBeliefVal() +
+			other.ideas[idea].getBeliefVal() ) >> 1 );
+	}
 	return;
 }
 

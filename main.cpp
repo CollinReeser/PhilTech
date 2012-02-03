@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <vector>
+#include <sstream>
 #include "Agent.h"
 using namespace std;
 
@@ -23,6 +25,7 @@ static void initSimpleIdeas( Agent* agents , int length , int numIdeas );
 static void exchangeIdeas( Agent* agents , int length );
 static void tick();
 static void finish(int sig);
+static void resetTalked( Agent* agents , int length );
 struct cell
 {
 	std::string ch;
@@ -34,12 +37,157 @@ int bufferNew[25][80];
 
 int main(int argc , char** argv)
 {
-	const int agntSize = 125;
+	const int MAX_IDEAS = 6;
+	int agntSize = 125;
+	int numIdeas = 1;
+	int ticksTillPause = 200;
+	int msTicks = 0;
+	vector<string> cmd;
+	// If we have command line arguments
+	if ( argc > 1 )
+	{
+		for ( int i = 1; i < argc; i++ )
+		{
+			string tmp( argv[i] );
+			cmd.push_back( tmp );
+		}
+	}
+	for ( unsigned int i = 0; i < cmd.size(); i += 2 )
+	{
+		if ( cmd.at(i).compare( "agents" ) == 0 )
+		{
+			if ( i + 1 < cmd.size() )
+			{
+				stringstream ss;
+				int agentCmd;
+				ss.str( cmd.at( i+1 ) );
+				ss >> agentCmd;
+				agntSize = agentCmd;
+				if ( agentCmd < 1 )
+				{
+					cerr << "ERR: There must be at least one agent." << endl;
+					return 0;
+				}
+				if ( ss.fail() )
+				{
+					cerr << "Argument \"" << cmd.at(i) << "\" found malformed "
+						<< "integer: " << cmd.at(i+1) << endl;
+					return 0;
+				}
+			}
+			else
+			{
+				cerr << "Argument \"" << cmd.at(i) << "\" expects integer." <<
+					endl;
+				return 0;
+			}
+		}
+		else if ( cmd.at(i).compare( "ideas" ) == 0 )
+		{
+			if ( i + 1 < cmd.size() )
+			{
+				stringstream ss;
+				int ideaCmd;
+				ss.str( cmd.at( i+1 ) );
+				ss >> ideaCmd;
+				if ( ideaCmd > MAX_IDEAS )
+				{
+					cerr << "ERR: Requested number of ideas, " << ideaCmd << 
+						" is greater than the max number of ideas ever\n" <<
+						"thought: " << MAX_IDEAS << endl;
+					return 0;
+				}
+				else if ( ideaCmd < 1 )
+				{
+					cerr << "ERR: Agents must have at least one idea." << endl;
+					return 0;
+				}
+				numIdeas = ideaCmd;
+				if ( ss.fail() )
+				{
+					cerr << "Argument \"" << cmd.at(i) << "\" found malformed "
+						<< "integer: " << cmd.at(i+1) << endl;
+					return 0;
+				}
+			}
+			else
+			{
+				cerr << "Argument \"" << cmd.at(i) << "\" expects integer." <<
+					endl;
+				return 0;
+			}
+		}
+		else if ( cmd.at(i).compare( "ticks" ) == 0 )
+		{
+			if ( i + 1 < cmd.size() )
+			{
+				stringstream ss;
+				int ticksCmd;
+				ss.str( cmd.at( i+1 ) );
+				ss >> ticksCmd;
+				ticksTillPause = ticksCmd;
+				if ( ticksCmd < 1 )
+				{
+					cerr << "ERR: There must be at least one frame of " <<
+						"simulation: " << cmd.at(i+1) << " chosen frames." << endl;
+					return 0;
+				}
+				if ( ss.fail() )
+				{
+					cerr << "Argument \"" << cmd.at(i) << "\" found malformed "
+						<< "integer: " << cmd.at(i+1) << endl;
+					return 0;
+				}
+			}
+			else
+			{
+				cerr << "Argument \"" << cmd.at(i) << "\" expects integer." <<
+					endl;
+				return 0;
+			}
+		}
+		else if ( cmd.at(i).compare( "msTicks" ) == 0 )
+		{
+			if ( i + 1 < cmd.size() )
+			{
+				stringstream ss;
+				int msticksCmd;
+				ss.str( cmd.at( i+1 ) );
+				ss >> msticksCmd;
+				msTicks = msticksCmd;
+				if ( msticksCmd < 0 )
+				{
+					cerr << "ERR: Negative time is silly." << endl;
+					return 0;
+				}
+				if ( ss.fail() )
+				{
+					cerr << "Argument \"" << cmd.at(i) << "\" found malformed "
+						<< "integer: " << cmd.at(i+1) << endl;
+					return 0;
+				}
+			}
+			else
+			{
+				cerr << "Argument \"" << cmd.at(i) << "\" expects integer." <<
+					endl;
+				return 0;
+			}
+		}
+		else
+		{
+			cerr << "ERR: Malformed command line argument: " << cmd.at(i) << 
+				endl;
+			return 0;
+		}
+	}
+	
+	
 	Agent agents[agntSize];
 	randomizeStartingPositions( agents , agntSize );
 	startCells( agents , agntSize );
-	int numIdeas = 6;
 	initSimpleIdeas( agents , agntSize , numIdeas );
+	
 	
 	/*
 	for ( int i = 0; i < agntSize; i++ )
@@ -94,9 +242,9 @@ int main(int argc , char** argv)
 	int ticks = 0;
 	for (;;)
     {
-    	int c;
+    	int c = '\0';
     	// Get next keystroke
-        if ( ++ticks == 2000 )
+        if ( ++ticks % ticksTillPause == 0 )
         {
         	c = getch();
         }
@@ -111,6 +259,14 @@ int main(int argc , char** argv)
 		moveRandomly( agents , agntSize );
 		exchangeIdeas( agents , agntSize );
 		refresh();
+		if ( msTicks != 0 )
+    	{
+    		clock_t then = clock() + msTicks * 1000;
+  			while ( then > clock() )
+  			{
+  			}
+  		}
+  		resetTalked( agents , agntSize );
 	}
 	finish(0);
 	int ideaAverages[agents[0].numIdeas];
@@ -125,7 +281,7 @@ int main(int argc , char** argv)
 		{
 			cout << "\tID: " << agents[i].ideas[j].getID();
 			cout << "\tIdea: \"" << agents[i].ideas[j].getName() << "\""<< endl;
-			cout << "\tBelief Amount (-100 - 100): " << 
+			cout << "\tBelief Amount (0 - 100): " << 
 				agents[i].ideas[j].getBeliefVal();
 			cout << endl;
 			if ( j < agents[i].numIdeas - 1 )
@@ -286,6 +442,15 @@ static void exchangeIdeas( Agent* agents , int length )
 			}
 		}
 	}
+}
+
+static void resetTalked( Agent* agents , int length )
+{
+	for ( int i = 0; i < length; i++ )
+	{
+		agents[i].resetTalked();
+	}
+	return;
 }
 
 static void finish(int sig)
